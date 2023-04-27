@@ -1,88 +1,80 @@
+# Demo NodeJs CircleCI
 
-<h1 align="center">🛠️ Unit Testing in Node.JS</h1>
-<p align="center">
-  <i>A quick example of testing in Node.JS</i>
-</p>
+This NodeJS is forked from Lissy93/quick-example-of-testing-in-nodejs.
 
-<br>
+the main objective of this project is to show the process of building and testing a NodeJS application in CircleCi.
 
-<p align="center">
-  <a href="#">
-   <img src="https://api.travis-ci.org/Lissy93/quick-example-of-testing-in-nodejs.svg" alt="Travis">
-  </a>
-  <a href="https://snyk.io/test/github/Lissy93/quick-example-of-testing-in-nodejs">
-    <img src="https://snyk.io/test/github/Lissy93/quick-example-of-testing-in-nodejs/badge.svg" alt="Known Vulnerabilities">
-  </a>
-    <a href="#">
-    <img src="http://inch-ci.org/github/Lissy93/quick-example-of-testing-in-nodejs.svg?branch=master" alt="Docs Rank">
-  </a>
-    <a href="https://www.codacy.com/gh/Lissy93/quick-example-of-testing-in-nodejs/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Lissy93/quick-example-of-testing-in-nodejs">
-    <img src="https://app.codacy.com/project/badge/Grade/3f14d24ffafe4200a643f4aba34fc2f3" alt="Code Quality">
-  </a>
-</p>
+## Full youtube video
 
+```bash
+https://www.youtube.com/watch?v=og9wm5NMoxA
+```
 
-## Intro
-This is a quick example project to show how a test environment can be setup in Node.js
-
-It includes the following
-
-- [Mocha](http://mochajs.org/) - *testing framework*
-- [Chai](http://chaijs.com/) - *assertion library*
-- [Istanbul](https://github.com/gotwarlost/istanbul) - *coverage testing*
-- [SinonJs](http://sinonjs.org/) - *stubs and splices for mocking data*
-
-
-The following online tools are used to monitor results
-
-- [Travis CI](https://travis-ci.org/) - *Continuous Integration*
-- [David DM](https://david-dm.org/) - *Dependency Management*
-- [Codacy](https://www.codacy.com/) - *Automated Code Quality Reviews*
-- [Inch CI](https://inch-ci.org/) - *Documentation Reviews*
-
----
-
-## The Project
-The project is a very simple script that pulls current weather data from OpenWeatherMap
-for your location, it then analyses it and lists which items (umbrella, icecream, jumper...)
-you will need for the current weather.
-
+## Local testing
 
 ### Installation
-- Navigate into your working directory, run the following commands:
-- ```git clone https://github.com/Lissy93/quick-example-of-testing-in-nodejs.git``` to clone repo
-- ```cd quick-example-of-testing-in-nodejs``` to navigate into project
-- ```npm install``` to install the dependencies
 
-### Running
-- ```npm start``` will run the main file (app.js) and display results
-- ```node app --location Newcastle``` will run app.js for a custom location, e.g. Newcastle
-- ```npm test``` will run the Mocha tests, output results and generate reports
-- ```npm run cover``` will run the Istanbul coverage tests and output results and generate reports
+Clone this repo.
 
----
+```bash
+git clone https://github.com/brobles39/cirleci-nodejs.git
+```
 
-## Screenshots
+Install dependencies.
 
-<p align="center">
-<i>Command Line Output: Tests Passing</i><br>
-<img src="https://i.ibb.co/WDpBStz/better-test3.png" />
-</p>
+```bash
+npm install
+```
+Run the app.
 
-<p align="center">
-<i>Web Report: Some Tests Failing</i><br>
-<img src="https://i.ibb.co/93CdGjG/bad-test1.png" />
-</p>
+```bash
+npm run start
+```
 
-<p align="center">
-<i>Web Report: All Tests Passing</i><br>
-<img src="https://i.ibb.co/nCdHFs4/better-test2.png" />
-</p>
+**Running tests locally.**
 
----
+Unit tests.
+```bash
+npm run test
+```
 
-<p  align="center">
-  <i>© <a href="https://aliciasykes.com">Alicia Sykes</a> 2011 - 2017</i><br>
-  <i>Licensed under <a href="https://gist.github.com/Lissy93/143d2ee01ccc5c052a17">MIT</a></i><br>
-  <a href="https://github.com/lissy93"><img src="https://i.ibb.co/4KtpYxb/octocat-clean-mini.png" /></a>
-</p>
+Coverage test
+```bash
+npm run coverage
+```
+
+## CI/CD Process
+
+Github actions was used as a CI/CD tool, basically it installs the project dependencies, logs into my personal dockerhub account, builds the application and uploads it to my dockerhub account.
+
+As variables it has configured a dockerhub token to access the account, as well as the credentials of my personal aws account and the KUBECONFIG_FILE in base64 to point to my EKS cluster.
+
+**Full Pipeline description:**
+
+**1. name:** The name of the pipeline.
+
+This CircleCI pipeline configuration performs a build and test workflow for a Node.js project. Let's break down the configuration and describe each section:
+
+**1. version** The pipeline is defined with the version 2.1.
+
+**2. orbs**  The node orb is included, specifically version circleci/node@5.0.2. Orbs are reusable packages that contain pre-defined commands and configurations for common tasks.
+
+**3. executor**The node14 executor is defined using a Docker image based on Node.js version 14.18.2. It is configured with a medium resource class.
+
+**4. custome command** A custom command called nodesetup is defined. It checks out the code, restores the cache, saves the cache, and installs project dependencies.
+
+**5. job** The build_and_test job is defined, which uses the node14 executor. It consists of multiple steps:
+
+  **5.1 nodesetup** .The nodesetup command is executed.
+  **5.2 coverage test** A run step runs the test command using npm run coverage.
+  **5.3 restoring cache**The restore_cache step restores the cache using the specified cache key.
+  **5.5 coverage information** Another run step processes the coverage information generated by the tests.
+  **5.6 saving cache for the next execution** The save_cache step saves the coverage information as a cache using the specified cache key.
+  **5.7 storing artifacts** The store_artifacts step saves the coverage reports as artifacts.
+  **5.8 workflow definition** The workflows section defines the node_build_pipeline workflow, which includes the build_and_test job.
+
+This pipeline essentially checks out the code, sets up the Node.js environment, installs dependencies, runs tests, processes the coverage information, and saves the coverage reports as artifacts. The pipeline is triggered when changes are pushed to the repository.
+
+## License
+
+Copyright © 2023 Brian Robles. All rights reserved.
